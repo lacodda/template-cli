@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+jobs:
+  # The checks lyrn itself runs before it uses a template from outside.
+  check:
+    name: lyrn template check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Install lyrn
+        run: npm install --global lyrn@2.9.0
+      - name: Check the template
+        run: lyrn template check .
+
+  # A template that does not build is not a template: every combination of
+  # its add-ons is generated, and the gate the project ships with is run.
+  generate:
+    name: generate (${{ matrix.addons || 'none' }})
+    needs: check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        addons: ['', 'keyring', 'self-update', 'keyring,self-update']
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install the Linux libraries it links against
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libdbus-1-dev pkg-config
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ runner.temp }}/demo-app
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Install lyrn
+        run: npm install --global lyrn@2.9.0
+      - name: Generate a project
+        shell: bash
+        run: |
+          args=(new demo-app --template "$GITHUB_WORKSPACE" --yes --no-hooks --repo owner/demo-app --path "$RUNNER_TEMP/demo-app")
+          if [ -n "${{ matrix.addons }}" ]; then args+=(--with "${{ matrix.addons }}"); fi
+          lyrn "${args[@]}"
+      - name: cargo fmt --check
+        working-directory: ${{ runner.temp }}/demo-app
+        run: cargo fmt --check
+      - name: cargo clippy --all-targets -- -D warnings
+        working-directory: ${{ runner.temp }}/demo-app
+        run: cargo clippy --all-targets -- -D warnings
+      - name: cargo test
+        working-directory: ${{ runner.temp }}/demo-app
+        run: cargo test

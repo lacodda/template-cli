@@ -1,0 +1,48 @@
+# The cli form of lyrn 2.9.0, written out by `lyrn template export cli`.
+# The project's files are under template/; the variables they may ask for
+# are listed at https://lyrn.lacodda.com/reference/template/.
+form = "cli"
+lyrn = "2.9.0"
+executable = ["tools/install.sh", "npm/run.js"]
+
+name = "cli"
+description = "Command-line tool: Rust, clap, anyhow, dialoguer"
+standard = "2026.09"
+
+# `cliff.toml` is a Tera template using bare `{{ }}` for its own variables, so
+# it has to travel untouched. GitHub Actions expressions are `${{ }}` and the
+# renderer leaves those alone by itself.
+verbatim = ["cliff.toml"]
+
+[[hooks]]
+name = "Fetching dependencies"
+run = ["cargo", "fetch"]
+optional = true
+
+[[hooks]]
+name = "Starting the repository"
+run = ["git", "init", "--initial-branch=main"]
+starts_repository = true
+optional = true
+
+[[hooks]]
+name = "Staging the first commit"
+run = ["git", "add", "."]
+starts_repository = true
+optional = true
+
+[[hooks]]
+name = "Creating the first commit"
+run = ["git", "commit", "-m", "feat: scaffold the project with lyrn"]
+starts_repository = true
+optional = true
+
+[[addons]]
+name = "keyring"
+summary = "Secrets in the OS keyring, never in a config file"
+files = ["src/commands/secret.rs"]
+
+[[addons]]
+name = "self-update"
+summary = "A `self-update` command that reads the releases page"
+files = ["src/commands/self_update.rs", "src/update.rs"]
