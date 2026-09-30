@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: 22
       - name: Install lyrn
-        run: npm install --global lyrn@2.9.0
+        run: npm install --global lyrn@2.9.1
       - name: Check the template
         run: lyrn template check .
 
@@ -40,20 +40,20 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: ${{ runner.temp }}/demo-app
       - uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: Install lyrn
-        run: npm install --global lyrn@2.9.0
+        run: npm install --global lyrn@2.9.1
       - name: Generate a project
         shell: bash
         run: |
           args=(new demo-app --template "$GITHUB_WORKSPACE" --yes --no-hooks --repo owner/demo-app --path "$RUNNER_TEMP/demo-app")
           if [ -n "${{ matrix.addons }}" ]; then args+=(--with "${{ matrix.addons }}"); fi
           lyrn "${args[@]}"
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ runner.temp }}/demo-app
       - name: cargo fmt --check
         working-directory: ${{ runner.temp }}/demo-app
         run: cargo fmt --check
