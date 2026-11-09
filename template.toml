@@ -1,13 +1,13 @@
-# The cli form of lyrn 2.19.0, written out by `lyrn template export cli`.
+# The cli form of lyrn 2.20.0, written out by `lyrn template export cli`.
 # The project's files are under template/; the variables they may ask for
 # are listed at https://lyrn.lacodda.com/reference/template/.
 form = "cli"
-lyrn = "2.19.0"
+lyrn = "2.20.0"
 executable = ["tools/install.sh", "npm/run.js"]
 
 name = "cli"
 description = "Command-line tool: Rust, clap, anyhow, dialoguer"
-standard = "2026.11.4"
+standard = "2026.11.5"
 
 # `cliff.toml` is a Tera template using bare `{{ }}` for its own variables, so
 # it has to travel untouched. GitHub Actions expressions are `${{ }}` and the
