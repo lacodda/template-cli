@@ -30,8 +30,8 @@ A CI job builds on exactly that version, so the number cannot quietly rot.
 
 The mark in `assets/` is the line's umbrella mark - lambda on graphite - until
 the product has one of its own; `lyrn.toml` says `mark = "placeholder"`
-meanwhile. The `.ico` is drawn from the masters by `docs/export-assets.mjs`,
-which comes with the documentation site (`lyrn new {{ name }} --form docs`).
+meanwhile. `lyrn assets --from <directory>` takes a mark of its own in, and
+`lyrn assets` draws the `.ico` and every other raster from the masters.
 
 ## Commits
 
@@ -40,11 +40,24 @@ which comes with the documentation site (`lyrn new {{ name }} --form docs`).
 from them (`cliff.toml`), so a commit message is the line the release notes
 will carry.
 
+## Releasing
+
+A release is the end of a stage, and furca's release engine runs it from
+[`release.toml`](release.toml): `furca release plan` says what the next
+release is and what stands in its way, and `furca release run` carries it
+out - bump, changelog, gate, commit, push, green CI, tag, publish - then
+checks what went out. The notes of every release end with
+[`.github/release-notes.md`](.github/release-notes.md), a checklist ticked on
+the release page once the release has reached a machine the way a user gets
+it and has been run by hand; `lyrn check --release` says which boxes are
+still empty.
+
 ## Decisions
 
 An architectural decision gets a record in [`docs/adr/`](docs/adr/README.md):
-one file, numbered, newest last. A decision that replaces an earlier one says
-so, and the earlier one is marked superseded rather than deleted.
+one file, numbered, newest last, which `lyrn adr new "<title>"` starts and lists
+in the index. A decision that replaces an earlier one says so, and the earlier
+one is marked superseded rather than deleted.
 
 ## Dependencies
 
